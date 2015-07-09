@@ -177,7 +177,6 @@ gaf.Tag.DefineTextFields.doParse = function(s) {
     var exec = s.array('Uint', s.fields(
         'id', 'Uint',
         'pivot', 'Point',
-        'end', 'Ushort',
         'width', 'Float',
         'height', 'Float',
         'text', 'String',
@@ -207,7 +206,7 @@ gaf.Tag.DefineTextFields.doParse = function(s) {
         'tabStops', s.array('Uint', s.fields(
             'value', 'Uint'
         )),
-        'target', 'string',
+        'target', 'String',
         'underline', 'Boolean',
         'url', 'String'
     ));
