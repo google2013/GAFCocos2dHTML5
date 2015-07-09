@@ -331,8 +331,11 @@ gaf.TimeLine = gaf.Object.extend
         this._gafproto.getObjects().forEach(function(object)
         {
             var objectProto = asset._getProtos()[object];
-            cc.assert(objectProto, "Error. GAF proto for type: " + object.type + " and reference id: " + object + " not found.");
-            self._objects[object] = objectProto._gafConstruct();
+            //cc.assert(objectProto, "Error. GAF proto for type: " + object.type + " and reference id: " + object + " not found.");
+            if (objectProto)
+            {
+                self._objects[object] = objectProto._gafConstruct();
+            }
         });
     },
 
