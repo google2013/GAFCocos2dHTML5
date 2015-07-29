@@ -52,6 +52,8 @@ gaf.Tag = function(){
     this["11"] = Object.create(gaf.Tag.DefineAnimationMasks2);
     this["12"] = Object.create(gaf.Tag.DefineAnimationFrames2);
     this["13"] = Object.create(gaf.Tag.DefineTimeline);
+    this["14"] = Object.create(gaf.Tag.DefineSounds);
+    this["15"] = Object.create(gaf.Tag.DefineAtlas3);
 };
 
 gaf.Tag.base = function() {};
@@ -171,6 +173,22 @@ gaf.Tag.DefineSequences.doParse = function(s) {
     return {'content': exec()};
 };
 
+gaf.Tag.DefineSounds = Object.create(gaf.Tag.base);
+gaf.Tag.DefineSounds.tagName = "TagDefineSounds";
+gaf.Tag.DefineSounds.doParse = function(s) {
+    var exec = s.array('Ushort', s.fields(
+        'id', 'Ushort',
+        'linkage', 'String',
+        'source', 'String',
+        'format', 'Ubyte',
+        'rate', 'Ubyte',
+        'sampleSize', 'Ubyte',
+        'stereo', 'Boolean',
+        'sampleCount', 'Uint'
+    ));
+    return {'content': exec()};
+};
+
 gaf.Tag.DefineTextFields = Object.create(gaf.Tag.base);
 gaf.Tag.DefineTextFields.tagName = "TagDefineTextFields";
 gaf.Tag.DefineTextFields.doParse = function(s) {
@@ -234,6 +252,35 @@ gaf.Tag.DefineAtlas2.doParse = function(s) {
             'elementAtlasId', 'Uint',
             'hasScale9Grid', 'Boolean',
             'scale9GridRect', s.condition('hasScale9Grid', 1, function(){return s.Rect();})
+        ))
+    );
+    return {'content': exec()};
+};
+
+gaf.Tag.DefineAtlas3 = Object.create(gaf.Tag.base);
+gaf.Tag.DefineAtlas3.tagName = "TagDefineAtlas3";
+gaf.Tag.DefineAtlas3.doParse = function(s) {
+    var exec = s.fields(
+        'scale', 'Float',
+        'atlases', s.array('Ubyte', s.fields(
+            'id', 'Uint',
+            'sources', s.array('Ubyte', s.fields(
+                'source', 'String',
+                'csf', 'Float'
+            ))
+        )),
+        'elements', s.array('Uint', s.fields(
+            'pivot', 'Point',
+            'origin', 'Point',
+            'width', 'Float',
+            'height', 'Float',
+            'atlasId', 'Uint',
+            'elementAtlasId', 'Uint',
+            'hasScale9Grid', 'Boolean',
+            'scale9GridRect', s.condition('hasScale9Grid', 1, function(){return s.Rect();}),
+            'scale', 'Point',
+            'rotation', 'Boolean',
+            'linkageName', 'String'
         ))
     );
     return {'content': exec()};
