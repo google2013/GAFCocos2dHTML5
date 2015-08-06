@@ -19,7 +19,7 @@ gaf.TimeLine = gaf.Object.extend
     _timeDelta: 0,
     _animationsSelectorScheduled: false,
     _currentFrame: gaf.FIRST_FRAME_INDEX,
-
+    _listeners: null,
 
     setAnimationStartedNextLoopDelegate: function (delegate)
     {
@@ -296,6 +296,48 @@ gaf.TimeLine = gaf.Object.extend
         return this._fps;
     },
 
+    addEventListener: function (type, listener)
+    {
+        var customListener = cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            eventName: type,
+            callback: listener
+        });
+
+        this._listeners.push(customListener);
+        cc.eventManager.addListener(customListener, 1)
+    },
+
+    removeEventListener: function (type, listener)
+    {
+        var customListener;
+        var i = this._listeners.length;
+        while (i--)
+        {
+            customListener = this._listeners[i];
+            if (customListener.eventName == type
+            &&  customListener.callback === listener)
+            {
+                cc.eventManager.removeListener(customListener);
+                delete this._listeners[i];
+            }
+        }
+    },
+
+    dispatchEvent: function (eventName, data)
+    {
+        var event = new cc.EventCustom(eventName);
+        if (data !== undefined)
+        {
+            if (typeof data !== "string")
+            {
+                data = data.toString();
+            }
+            event.setUserData(data);
+            event._currentTarget = this;
+        }
+        cc.eventManager.dispatchEvent(event);
+    },
 
     // Private
 
@@ -303,6 +345,7 @@ gaf.TimeLine = gaf.Object.extend
     {
         this._super(scale);
         this._objects = [];
+        this._listeners = [];
         cc.assert(gafTimeLineProto,  "Error! Missing mandatory parameter.");
         this._gafproto = gafTimeLineProto;
     },
@@ -437,6 +480,7 @@ gaf.TimeLine = gaf.Object.extend
             this._framePlayedDelegate(this, this._currentFrame);
         }
     },
+
     _realizeFrame: function(out, frameIndex)
     {
         var self = this;
@@ -483,8 +527,55 @@ gaf.TimeLine = gaf.Object.extend
                 object._step();
             }
         }
+        this._runActions(currentFrame);
     },
-    setAnimationRunning: function (value, recursively)
+
+    _runActions: function(currentFrame)
+    {
+        if (currentFrame.actions)
+        {
+            var action;
+            for (var i = 0, l = currentFrame.actions.length; i < l; i++)
+            {
+                action = currentFrame.actions[i];
+                switch (action.type)
+                {
+                    case gaf.ACTION_STOP:
+                        this.stop();
+                        break;
+                    case gaf.ACTION_PLAY:
+                        this.start();
+                        break;
+                    case gaf.ACTION_GO_TO_AND_STOP:
+                        this.gotoAndStop(action.params[0]);
+                        break;
+                    case gaf.ACTION_GO_TO_AND_PLAY:
+                        this.gotoAndPlay(action.params[0]);
+                        break;
+                    case gaf.ACTION_DISPATCH_EVENT:
+                        var type = action.params[0];
+                        var data;
+                        switch (action.params.length)
+                        {
+                            case 4:
+                                data = action.params[3];
+                            case 3: // cancelable param is not used
+                            case 2: // bubbles param is not used
+                        }
+                        this.dispatchEvent(type, data);
+                        if (type == gaf.PLAY_SOUND)
+                        {
+                            var asset = this._gafproto.getAsset();
+                            var params = JSON.parse(data);
+                            asset._startSound(params);
+                        }
+                        break;
+                }
+            }
+        }
+    },
+
+    setAnimationRunning: function(value, recursively)
     {
         this._isRunning = value;
         if(recursively)

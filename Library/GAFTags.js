@@ -272,8 +272,7 @@ gaf.Tag.DefineAtlas3.doParse = function(s) {
         'elements', s.array('Uint', s.fields(
             'pivot', 'Point',
             'origin', 'Point',
-            'width', 'Float',
-            'height', 'Float',
+            'size', 'Point',
             'atlasId', 'Uint',
             'elementAtlasId', 'Uint',
             'hasScale9Grid', 'Boolean',
@@ -379,7 +378,7 @@ gaf.Tag._readActionArguments = function(s){
         var size = s.Uint();
         var ret = [];
         s.startNestedBuffer(size);
-        while(s.maxOffset() < s.tell()){
+        while(s.tell() < s.maxOffset()){
             ret.push(s.String());
         }
         s.endNestedBuffer();

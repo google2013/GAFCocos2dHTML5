@@ -24,6 +24,10 @@ gaf.Sprite = gaf.Object.extend
         this._sprite = new cc.Sprite();
         this._sprite._renderCmd = this._gafCreateRenderCmd(this._sprite);
         this._sprite.initWithSpriteFrame(frame);
+        if (frame.isRotated())
+        {
+            this._sprite.setRotation(-90);
+        }
 
         this._sprite.setAnchorPoint(this._gafproto.getAnchor());
         this.addChild(this._sprite);

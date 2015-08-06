@@ -11,6 +11,8 @@ gaf.Asset = cc.Class.extend
     _protos: null,
     _objects: null,
     _masks: null,
+    _sounds: null,
+    _soundChannels: null,
 
     _rootTimeLine: null,
     _textureLoadDelegate: null,
@@ -239,6 +241,16 @@ gaf.Asset = cc.Class.extend
         return this._gafName;
     },
 
+    /**
+     *
+     * @param id - sound ID
+     * @returns {SoundConfig}
+     */
+    getSoundConfig: function(id)
+    {
+        return this._sounds[id];
+    },
+
     // Private
 
     ctor : function()
@@ -253,6 +265,8 @@ gaf.Asset = cc.Class.extend
         this._onLoadTasks = [];
         this._atlasScales = {};
         this._atlasesToLoad = {};
+        this._sounds = {};
+        this._soundChannels = {};
 
         if(arguments.length > 0)
             this.initWithGAFFile.apply(this, arguments);
@@ -391,13 +405,46 @@ gaf.Asset = cc.Class.extend
         return this._textureLoaded;
     },
 
-    _getSearchPaths: function(imageUrl)
+    _getSearchPaths: function(sourceUrl)
     {
         var extendedPath = this.getGAFFileName().split('/');
-        extendedPath[extendedPath.length-1] = imageUrl;
+        extendedPath[extendedPath.length-1] = sourceUrl;
         var alternativeUrl = extendedPath.join('/');
 
-        return [imageUrl, alternativeUrl];
+        return [sourceUrl, alternativeUrl];
+    },
+
+    _startSound: function(config)
+    {
+        var sound = this._sounds[config.id];
+        if (sound)
+        {
+            switch (config.action)
+            {
+                case gaf.SOUND_ACTION_STOP:
+                    if (this._soundChannels[config.id]
+                        &&  this._soundChannels[config.id] instanceof Array)
+                    {
+                        var i = this._soundChannels[config.id].length;
+                        while (i--)
+                        {
+                            cc.audioEngine.stopEffect();
+                        }
+                        delete this._soundChannels[config.id];
+                    }
+                    break;
+                case gaf.SOUND_ACTION_CONTINUE:
+                    if (this._soundChannels[config.id])
+                    {
+                        break;
+                    }
+                case gaf.SOUND_ACTION_START:
+                    this._soundChannels[config.id] = this._soundChannels[config.id] || [];
+                    var loop = config.repeat < 0 || config.repeat > 32000;
+                    this._soundChannels[config.id].push(cc.audioEngine.playEffect(sound.source, loop));
+                    break;
+            }
+        }
     }
 });
 

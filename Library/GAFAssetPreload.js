@@ -23,10 +23,12 @@ gaf._AssetPreload = function()
     this["7"] = this.TextFields;
     this["8"] = this.Atlases; // 2
     this["9"] = this.Stage;
-    this["10"] = this.AnimationObjects; //2
-    this["11"] = this.AnimationMasks; // 2
-    this["12"] = this.AnimationFrames; // 2
+    this["10"] = this.AnimationObjects; // 2
+    this["11"] = this.AnimationMasks;   // 2
+    this["12"] = this.AnimationFrames;  // 2
     this["13"] = this.TimeLine;
+    this["14"] = this.Sounds;
+    this["15"] = this.Atlases; // 3
 };
 
 gaf._AssetPreload.prototype.End = function(asset, content, timeLine){
@@ -56,14 +58,42 @@ gaf._AssetPreload.prototype.Tags = function(asset, tags, timeLine)
 gaf._AssetPreload.prototype.AtlasCreateFrames = function(elements, asset, spriteFrames)
 {
     elements.forEach(function (item) {
+        var scaleX = 1;
+        var scaleY = 1;
+        if ("scale" in item)
+        {
+            if (!isNaN(item.scale))
+            {
+                scaleX = scaleY = item.scale;
+            }
+            else
+            {
+                scaleX = item.scale.x;
+                scaleY = item.scale.y;
+            }
+        }
         var texture = asset._atlases[item.atlasId];
         var rect = cc.rect(item.origin.x, item.origin.y, item.size.x, item.size.y);
-        var frame = new cc.SpriteFrame(texture, rect);
+        if ("rotation" in item
+        &&  item.rotation != 0)
+        {
+            var rotated = true;
+            var offset = cc.p(item.pivot.y - item.size.x * 0.5, item.pivot.x - item.size.y * 0.5);
+            var originalSize = cc.size(0,0);
+        }
+        var frame = new cc.SpriteFrame(texture, rect, rotated, offset, originalSize);
+
         frame._gafAnchor =
         {
-            x: (0 - (0 - (item.pivot.x / item.size.x))),
-            y: (0 + (1 - (item.pivot.y / item.size.y)))
+            x: 0 + (item.pivot.x / item.size.x * scaleX),
+            y: 1 - (item.pivot.y / item.size.y * scaleY)
         };
+
+        frame.linkageName = "";
+        if ("linkageName" in item)
+        {
+            frame.linkageName = item.linkageName;
+        }
         spriteFrames[item.elementAtlasId] = frame;
         // 9 grid
     });
@@ -265,6 +295,26 @@ gaf._AssetPreload.prototype.TimeLine = function(asset, content, timeLine)
     var result = new gaf._TimeLineProto(asset, content.animationFrameCount, content.boundingBox, content.pivotPoint, content.id, content.linkageName);
     asset._pushTimeLine(result);
     this.Tags(asset, content.tags, result);
+};
+
+gaf._AssetPreload.prototype.Sounds = function(asset, content, timeLine)
+{
+    var paths;
+    content.forEach(function(item)
+    {
+        paths = asset._getSearchPaths(item.source);
+        var i = paths.length;
+        while (i--)
+        {
+            if (cc.loader.getRes(paths[i]) != undefined)
+            {
+                item.source = paths[i];
+                break;
+            }
+        }
+
+        asset._sounds[item.id] = item;
+    });
 };
 
 gaf._AssetPreload = new gaf._AssetPreload();
