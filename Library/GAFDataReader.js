@@ -76,7 +76,7 @@ gaf.DataReader.prototype.String = function() {
     catch(e)
     {
         // Internet Explorer 10 T.T
-        if(e.message == "Object doesn't support property or method 'slice'")
+        if(e.message.indexOf("slice") == e.message.length - 6)
         {
             str = [];
             for(var i = from; i < to; ++i)

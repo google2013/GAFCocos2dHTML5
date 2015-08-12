@@ -46,10 +46,33 @@ gaf.Loader = function(){
     this.LoadStream = function(stream){
         var header = {};
         readHeaderBegin(stream, header);
-        if(header.compression == gaf.COMPRESSION_NONE) { // GAF
+        if (header.compression == gaf.COMPRESSION_NONE) // GAF
+        {
         }
-        else if(header.compression == gaf.COMPRESSION_ZIP){ // GAC
-            var compressed = stream.dataRaw.slice(stream.tell());
+        else if (header.compression == gaf.COMPRESSION_ZIP) // GAC
+        {
+            var from = stream.tell();
+            var to = stream.maxOffset();
+            try
+            {
+                var compressed = stream.dataRaw.slice(from, to);
+            }
+            catch(e)
+            {
+                //Internet Explorer 10 T.T
+                if (e.message.indexOf("slice") == e.message.length - 6)
+                {
+                    compressed = new ArrayBuffer(to - from);
+                    var dv = new DataView(compressed);
+                    var offset = 0;
+                    for(var i = from; i < to; ++i)
+                        dv.setUint8(offset++, stream.buf.getUint8(i));
+                }
+                else
+                {
+                    throw(e);
+                }
+            }
 
             var inflate = new window.Zlib.Inflate(new Uint8Array(compressed));
             var decompressed = inflate.decompress();

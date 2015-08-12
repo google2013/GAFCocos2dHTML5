@@ -74,8 +74,7 @@ gaf._AssetPreload.prototype.AtlasCreateFrames = function(elements, asset, sprite
         }
         var texture = asset._atlases[item.atlasId];
         var rect = cc.rect(item.origin.x, item.origin.y, item.size.x, item.size.y);
-        if ("rotation" in item
-        &&  item.rotation != 0)
+        if ("rotation" in item && item.rotation != 0)
         {
             var rotated = true;
             var offset = cc.p(item.pivot.y - item.size.x * 0.5, item.pivot.x - item.size.y * 0.5);
@@ -269,7 +268,11 @@ gaf._AssetPreload.prototype.Sequences = function(asset, content, timeLine)
 
 gaf._AssetPreload.prototype.TextFields = function(asset, content, timeLine)
 {
-    debugger;
+    content.forEach(function(item)
+    {
+        var result = new gaf._TextFieldProto(asset, item);
+        asset._textFields[item.id] = result; //new gaf.TextField(item, asset._usedAtlasScale);
+    });
 };
 
 gaf._AssetPreload.prototype.Stage = function(asset, content, timeLine)

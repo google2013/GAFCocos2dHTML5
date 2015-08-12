@@ -70,6 +70,12 @@ gaf.Asset = cc.Class.extend
         return false;
     },
 
+    stopAllSounds: function()
+    {
+        gaf.enableSounds = false;
+        cc.audioEngine.stopAllEffects();
+    },
+
     /**
      * @method setRootTimelineWithName
      * @param {String} name
@@ -428,7 +434,7 @@ gaf.Asset = cc.Class.extend
                         var i = this._soundChannels[config.id].length;
                         while (i--)
                         {
-                            cc.audioEngine.stopEffect();
+                            cc.audioEngine.stopEffect(this._soundChannels[config.id][i]);
                         }
                         delete this._soundChannels[config.id];
                     }
