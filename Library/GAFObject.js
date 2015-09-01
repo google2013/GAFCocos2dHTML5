@@ -166,7 +166,15 @@ gaf.Object = cc.Node.extend
         {
             return true;
         }*/
-        return !(this._parentTimeLine && ((this._parentTimeLine.getCurrentFrameIndex() + 1) != this._lastVisibleInFrame));
+        if (!this._parentTimeLine instanceof gaf.Object)
+        {
+            cc.warn("Parent timeline must be an instance of gaf.Object");
+        }
+
+        // If sprite is a part of timeline object - check it for visibility in current frame
+        if (this._parentTimeLine && (this._parentTimeLine.getCurrentFrameIndex() + 1 != this._lastVisibleInFrame))
+            return false;
+        return true;
     },
 
     /**
