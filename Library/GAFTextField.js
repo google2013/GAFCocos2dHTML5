@@ -37,20 +37,6 @@ gaf.TextField = gaf.Object.extend
                 break;
         }
         var fontStyle = this._config.font;
-        var ua = navigator.userAgent;
-        if(/Win|Mac|X11|Linux/i.test(navigator.userAgent) == false)
-        {
-            var paths = this._gafproto.getAsset()._getSearchPaths(fontStyle + ".ttf");
-            var i = paths.length;
-            while (i--)
-            {
-                if (cc.loader.getRes(paths[i]) != undefined)
-                {
-                    fontStyle = paths[i];
-                    break;
-                }
-            }
-        }
 
         switch (fontStyle) //cocos js misunderstands the Flash font families
         {
