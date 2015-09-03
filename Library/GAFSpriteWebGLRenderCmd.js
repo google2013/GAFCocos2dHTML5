@@ -129,4 +129,114 @@
         cc.Sprite.WebGLRenderCmd.prototype.rendering.call(this, ctx);
     };
 
+    proto._setTextureCoords = function (rect, needConvert)
+    {
+        if (needConvert === undefined)
+            needConvert = true;
+        if (needConvert)
+            rect = cc.rectPointsToPixels(rect);
+
+        var node = this._node;
+        var tex = node._batchNode ? node.textureAtlas.texture : node._texture;
+        if (!tex)
+        {
+            return;
+        }
+
+        var atlasWidth = tex.pixelsWidth;
+        var atlasHeight = tex.pixelsHeight;
+
+        var left, right, top, bottom, locQuad = this._quad;
+
+        left = rect.x / atlasWidth;
+        right = (rect.x + rect.width) / atlasWidth;
+        top = rect.y / atlasHeight;
+        bottom = (rect.y + rect.height) / atlasHeight;
+
+        switch (node._rotation)
+        {
+            case gaf.ROTATED_CCW:
+            {
+                if (node._flippedX)
+                {
+                    top += bottom;
+                    bottom = top - bottom;
+                    top -= bottom;
+                }
+                if (node._flippedY)
+                {
+                    cc.swap(left, right);
+                    left += right;
+                    right = left - right;
+                    left -= right;
+                }
+
+                locQuad.bl.texCoords.u = right;
+                locQuad.bl.texCoords.v = bottom;
+                locQuad.br.texCoords.u = right;
+                locQuad.br.texCoords.v = top;
+                locQuad.tl.texCoords.u = left;
+                locQuad.tl.texCoords.v = bottom;
+                locQuad.tr.texCoords.u = left;
+                locQuad.tr.texCoords.v = top;
+            }
+                break;
+
+            case gaf.ROTATED_CW:
+            {
+                if (node._flippedX)
+                {
+                    top += bottom;
+                    bottom = top - bottom;
+                    top -= bottom;
+                }
+                if (node._flippedY)
+                {
+                    cc.swap(left, right);
+                    left += right;
+                    right = left - right;
+                    left -= right;
+                }
+
+                locQuad.bl.texCoords.u = left;
+                locQuad.bl.texCoords.v = top;
+                locQuad.br.texCoords.u = left;
+                locQuad.br.texCoords.v = bottom;
+                locQuad.tl.texCoords.u = right;
+                locQuad.tl.texCoords.v = top;
+                locQuad.tr.texCoords.u = right;
+                locQuad.tr.texCoords.v = bottom;
+            }
+                break;
+
+            case gaf.ROTATED_NONE:
+                default:
+            {
+                if (node._flippedX)
+                {
+                    cc.swap(left, right);
+                    left += right;
+                    right = left - right;
+                    left -= right;
+                }
+                if (node._flippedY)
+                {
+                    top += bottom;
+                    bottom = top - bottom;
+                    top -= bottom;
+                }
+
+                locQuad.bl.texCoords.u = left;
+                locQuad.bl.texCoords.v = bottom;
+                locQuad.br.texCoords.u = right;
+                locQuad.br.texCoords.v = bottom;
+                locQuad.tl.texCoords.u = left;
+                locQuad.tl.texCoords.v = top;
+                locQuad.tr.texCoords.u = right;
+                locQuad.tr.texCoords.v = top;
+            }
+                break;
+        }
+    };
+
 })();

@@ -39,6 +39,13 @@ gaf.UNIFORM_ALPHA_TINT_OFFSET = "colorTransformOffsets";
 gaf.UNIFORM_ALPHA_COLOR_MATRIX_BODY = "colorMatrix";
 gaf.UNIFORM_ALPHA_COLOR_MATRIX_APPENDIX = "colorMatrix2";
 
+gaf.EVENT_SEQUENCE_START = "gafSequenceStart";
+gaf.EVENT_SEQUENCE_END = "gafSequenceEnd";
+
+gaf.ROTATED_NONE = 0;
+gaf.ROTATED_CCW = -1;
+gaf.ROTATED_CW = 1;
+
 gaf.PLAY_SOUND = "gafPlaySound";
 gaf.SOUND_ACTION_STOP     = 1; //stops sound playback
 gaf.SOUND_ACTION_START    = 2; //starts playing a new sound

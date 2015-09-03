@@ -3,7 +3,6 @@ gaf.TimeLine = gaf.Object.extend
 ({
     _className: "GAFTimeLine",
     _objects: null,
-    _container: null,
     _animationStartedNextLoopDelegate: null,
     _animationFinishedPlayDelegate: null,
     _framePlayedDelegate: null,
@@ -19,6 +18,7 @@ gaf.TimeLine = gaf.Object.extend
     _timeDelta: 0,
     _animationsSelectorScheduled: false,
     _currentFrame: gaf.FIRST_FRAME_INDEX,
+    _currentSequence: null,
     _listeners: null,
 
     setAnimationStartedNextLoopDelegate: function (delegate)
@@ -63,7 +63,7 @@ gaf.TimeLine = gaf.Object.extend
                 }
             }
         });
-        return cc._rectApplyAffineTransformIn(result, this._container.getNodeToParentTransform());
+        return cc._rectApplyAffineTransformIn(result, this.getNodeToParentTransform());
     },
     setFps: function (fps)
     {
@@ -110,6 +110,7 @@ gaf.TimeLine = gaf.Object.extend
     },
     clearSequence: function ()
     {
+        this._currentSequence = null;
         this._currentSequenceStart = gaf.FIRST_FRAME_INDEX;
         this._currentSequenceEnd = this._gafproto.getTotalFrames();
     },
@@ -243,6 +244,7 @@ gaf.TimeLine = gaf.Object.extend
         }
         this.setLooped(looped, false);
         this.resumeAnimation();
+        this._currentSequence = name;
         return true;
     },
     isReversed: function ()
@@ -296,27 +298,75 @@ gaf.TimeLine = gaf.Object.extend
         return this._fps;
     },
 
-    addEventListener: function (type, listener)
+    hasEventListener: function (type)
+    {
+        var self = this;
+        var result = false;
+        this._listeners.forEach(function(listener)
+        {
+            if (listener._listenerID == type + self.__instanceId)
+            {
+                result = true;
+                return;
+            }
+        });
+        return result;
+    },
+
+    /**
+     * <p>
+     * Adds a event listener for a specified event.<br/>
+     * </p>
+     * @param {function} handler callback function
+     * @return {cc.EventListener} Return the listener. Needed in order to remove the event from the dispatcher.
+     */
+    addEventListener: function (type, handler)
     {
         var customListener = cc.EventListener.create({
             event: cc.EventListener.CUSTOM,
-            eventName: type,
-            callback: listener
+            eventName: type + this.__instanceId,
+            callback: handler
         });
 
         this._listeners.push(customListener);
-        cc.eventManager.addListener(customListener, 1)
+        cc.eventManager.addListener(customListener, this);
+
+        return customListener;
     },
 
-    removeEventListener: function (type, listener)
+    /**
+     *
+     * @param {cc.EventListener} listener The listener of a specified event or a object of some event parameters.
+     */
+    removeEventListener: function (listener)
     {
         var customListener;
         var i = this._listeners.length;
         while (i--)
         {
             customListener = this._listeners[i];
-            if (customListener.eventName == type
-            &&  customListener.callback === listener)
+            if (customListener._getListenerID() == type
+            &&  customListener.callback === handler)
+            {
+                cc.eventManager.removeListener(customListener);
+                delete this._listeners[i];
+            }
+        }
+    },
+
+    /**
+     *
+     * @param {String} type - event type
+     */
+    removeListeners: function (type)
+    {
+        var customListener;
+        var i = this._listeners.length;
+        while (i--)
+        {
+            customListener = this._listeners[i];
+            if (customListener != undefined
+            &&  customListener._getListenerID() == type + this.__instanceId)
             {
                 cc.eventManager.removeListener(customListener);
                 delete this._listeners[i];
@@ -326,17 +376,19 @@ gaf.TimeLine = gaf.Object.extend
 
     dispatchEvent: function (eventName, data)
     {
-        var event = new cc.EventCustom(eventName);
-        if (data !== undefined)
+        if (this.hasEventListener(eventName))
         {
-            if (typeof data !== "string")
+            var event = new cc.EventCustom(eventName + this.__instanceId);
+            if (data !== undefined)
             {
-                data = data.toString();
+                if (typeof data !== "string")
+                {
+                    data = data.toString();
+                }
+                event.setUserData(data);
             }
-            event.setUserData(data);
-            event._currentTarget = this;
+            cc.eventManager.dispatchEvent(event);
         }
-        cc.eventManager.dispatchEvent(event);
     },
 
     // Private
@@ -352,9 +404,9 @@ gaf.TimeLine = gaf.Object.extend
 
     setExternalTransform: function(affineTransform)
     {
-        if(!cc.affineTransformEqualToTransform(this._container._additionalTransform, affineTransform))
+        if(!cc.affineTransformEqualToTransform(this._additionalTransform, affineTransform))
         {
-           this._container.setAdditionalTransform(affineTransform);
+           this.setAdditionalTransform(affineTransform);
         }
     },
 
@@ -364,18 +416,25 @@ gaf.TimeLine = gaf.Object.extend
         this._currentSequenceEnd = this._gafproto.getTotalFrames();
         this._totalFrameCount = this._currentSequenceEnd;
         this.setFps(this._gafproto.getFps());
-        this._container = new cc.Node();
-        this.addChild(this._container);
 
         var self = this;
         var asset = this._gafproto.getAsset();
+        var namedParts = this._gafproto.getNamedParts();
 
         // Construct objects for current time line
-        this._gafproto.getObjects().forEach(function(object)
+        this._gafproto.getObjects().forEach(function(key)
         {
-            var objectProto = asset._getProtos()[object];
-            cc.assert(objectProto, "Error. GAF proto for type: " + object.type + " and reference id: " + object + " not found.");
-            self._objects[object] = objectProto._gafConstruct();
+            var objectProto = asset._getProtos()[key];
+            cc.assert(objectProto, "Error. GAF proto for type: " + key.type + " and reference id: " + key + " not found.");
+            var object = objectProto._gafConstruct();
+            for (var name in namedParts)
+            {
+                if (namedParts[name] == key)
+                {
+                    object._name = name;
+                }
+            }
+            self._objects[key] = object;
         });
     },
 
@@ -418,7 +477,7 @@ gaf.TimeLine = gaf.Object.extend
             var seq;
             if(!this._isReversed)
             {
-                seq = this._getSequenceByLastFrame(this._currentFrame);
+                seq = this._getSequenceByLastFrame(this._currentFrame + 1);
             }
             else
             {
@@ -430,6 +489,7 @@ gaf.TimeLine = gaf.Object.extend
                 this._sequenceDelegate(this, seq);
             }
         }
+
         if (this._isCurrentFrameLastInSequence())
         {
             if(this._isLooped)
@@ -442,6 +502,10 @@ gaf.TimeLine = gaf.Object.extend
                 this.setAnimationRunning(false, false);
                 if(this._animationFinishedPlayDelegate)
                     this._animationFinishedPlayDelegate(this);
+            }
+            if (this._currentSequenceEnd > 1)
+            {
+                this.dispatchEvent(gaf.EVENT_SEQUENCE_END);
             }
         }
         this._processAnimation();
@@ -474,7 +538,7 @@ gaf.TimeLine = gaf.Object.extend
     _processAnimation: function ()
     {
         //var id = this._gafproto.getId();
-        this._realizeFrame(this._container, this._currentFrame);
+        this._realizeFrame(this, this._currentFrame);
         if (this._framePlayedDelegate)
         {
             this._framePlayedDelegate(this, this._currentFrame);
@@ -541,10 +605,10 @@ gaf.TimeLine = gaf.Object.extend
                 switch (action.type)
                 {
                     case gaf.ACTION_STOP:
-                        this.stop();
+                        this.pauseAnimation();
                         break;
                     case gaf.ACTION_PLAY:
-                        this.start();
+                        this.resumeAnimation();
                         break;
                     case gaf.ACTION_GO_TO_AND_STOP:
                         this.gotoAndStop(action.params[0]);
@@ -590,11 +654,14 @@ gaf.TimeLine = gaf.Object.extend
         }
     },
 
-    _getSequenceByLastFrame: function(){
+    _getSequenceByLastFrame: function(frame)
+    {
         var sequences = this._gafproto.getSequences();
-        for(var item in sequences){
-            if(sequences.hasOwnProperty(item)){
-                if(sequences[item].end === frame + 1)
+        for(var item in sequences)
+        {
+            if(sequences.hasOwnProperty(item))
+            {
+                if(sequences[item].end === frame)
                 {
                     return item;
                 }
@@ -609,10 +676,13 @@ gaf.TimeLine = gaf.Object.extend
         this._currentFrame = this._currentSequenceStart;
     },
 
-    _getSequenceByFirstFrame: function(){
+    _getSequenceByFirstFrame: function(frame)
+    {
         var sequences = this._gafproto.getSequences();
-        for(var item in sequences){
-            if(sequences.hasOwnProperty(item)){
+        for(var item in sequences)
+        {
+            if(sequences.hasOwnProperty(item))
+            {
                 if(sequences[item].start === frame)
                 {
                     return item;

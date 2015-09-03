@@ -171,6 +171,8 @@ gaf.Object = cc.Node.extend
             cc.warn("Parent timeline must be an instance of gaf.Object");
         }
 
+        // If no parent timeline, or this object is not a root timeline - the object is not in the display list
+        if (!this._parentTimeLine && this instanceof gaf.TimeLine && this._gafproto.getId() != 0) return false;
         // If sprite is a part of timeline object - check it for visibility in current frame
         if (this._parentTimeLine && (this._parentTimeLine.getCurrentFrameIndex() + 1 != this._lastVisibleInFrame))
             return false;

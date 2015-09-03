@@ -73,22 +73,39 @@ gaf._AssetPreload.prototype.AtlasCreateFrames = function(elements, asset, sprite
             }
         }
         var texture = asset._atlases[item.atlasId];
-        var rect = cc.rect(item.origin.x, item.origin.y, item.size.x, item.size.y);
-        if ("rotation" in item && item.rotation != 0)
+        var width = item.size.x;
+        var height = item.size.y;
+        var rect = cc.rect(item.origin.x, item.origin.y, width, height);
+        if (item.rotation)
         {
-            var rotated = true;
-            var offset = cc.p(item.pivot.y - item.size.x * 0.5, item.pivot.x - item.size.y * 0.5);
-            var originalSize = cc.size(0,0);
+            width = item.size.y;
+            height = item.size.x;
+            var offset = cc.p(item.pivot.y - height * 0.5, item.pivot.x - width * 0.5);
+            var originalSize = cc.size(width, height);
         }
-        var frame = new cc.SpriteFrame(texture, rect, rotated, offset, originalSize);
-
-        frame._gafAnchor =
+        var anchor =
         {
-            x: 0 + (item.pivot.x / item.size.x * scaleX),
-            y: 1 - (item.pivot.y / item.size.y * scaleY)
+            x:     (item.pivot.x / width * scaleX),
+            y: 1 - (item.pivot.y / height * scaleY)
         };
 
+        var frame;
+        if(cc._renderType === cc._RENDER_TYPE_WEBGL)
+        {
+            frame = new cc.SpriteFrame(texture, rect);
+        }
+        else //canvas
+        {
+            if (item.rotation)
+            {
+                anchor.x = anchor.y = 0;
+            }
+            frame = new cc.SpriteFrame(texture, rect, (item.rotation != gaf.ROTATED_NONE), offset, originalSize);
+        }
+        frame._gafAnchor = anchor;
         frame.linkageName = "";
+        frame._rotation = item.rotation;
+
         if ("linkageName" in item)
         {
             frame.linkageName = item.linkageName;
@@ -97,8 +114,6 @@ gaf._AssetPreload.prototype.AtlasCreateFrames = function(elements, asset, sprite
         // 9 grid
     });
 };
-
-
 
 gaf._AssetPreload.prototype.Atlases = function(asset, content, timeLine)
 {

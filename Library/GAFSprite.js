@@ -1,3 +1,56 @@
+gaf._SpriteWrapper = cc.Sprite.extend
+({
+    _rotation: gaf.ROTATED_NONE,
+
+    ctor: function (rotation)
+    {
+        this._rotation = rotation || this._rotation;
+        cc.Sprite.prototype.ctor.call(this);
+    },
+
+    /**
+     * <p>
+     *    set the vertex rect.<br/>
+     *    It will be called internally by setTextureRect.                           <br/>
+     *    Useful if you want to create 2x images from SD images in Retina Display.  <br/>
+     *    Do not call it manually. Use setTextureRect instead.  <br/>
+     *    (override this method to generate "double scale" sprites)
+     * </p>
+     * @param {cc.Rect} rect
+     */
+    setVertexRect: function(rect)
+    {
+        cc.Sprite.prototype.setVertexRect.call(this, rect);
+        if (cc._renderType == cc._RENDER_TYPE_WEBGL
+            && this._rotation != gaf.ROTATED_NONE)
+        {
+            //swap;
+            this._rect.width += this._rect.height;
+            this._rect.height = this._rect.width - this._rect.height;
+            this._rect.width -= this._rect.height;
+        }
+    },
+
+    /**
+     * Updates the texture rect of the CCSprite in points.
+     * @function
+     * @param {cc.Rect} rect a rect of texture
+     * @param {Boolean} [rotated] Whether or not the texture is rotated
+     * @param {cc.Size} [untrimmedSize] The original pixels size of the texture
+     */
+    setTextureRect: function (rect, rotated, untrimmedSize, needConvert)
+    {
+        var rotatedSize = untrimmedSize;
+        if (rotatedSize && this._rotation != gaf.ROTATED_NONE)
+        {
+            if (cc._renderType == cc._RENDER_TYPE_WEBGL)
+            {
+                rotatedSize = new cc.size(rotatedSize.height, rotatedSize.width);
+            }
+        }
+        cc.Sprite.prototype.setTextureRect.call(this, rect, rotated, rotatedSize, needConvert);
+    }
+});
 
 gaf.Sprite = gaf.Object.extend
 ({
@@ -6,7 +59,7 @@ gaf.Sprite = gaf.Object.extend
     _hasCtx: false,
     _hasFilter: false,
 
-    ctor : function(gafSpriteProto, usedScale)
+    ctor: function(gafSpriteProto, usedScale)
     {
         this._super(usedScale);
         cc.assert(gafSpriteProto, "Error! Missing mandatory parameter.");
@@ -15,31 +68,45 @@ gaf.Sprite = gaf.Object.extend
 
     // Private
 
-    _init : function()
+    _init: function()
     {
         var frame = this._gafproto.getFrame();
         cc.assert(frame instanceof cc.SpriteFrame, "Error. Wrong object type.");
 
         // Create sprite with custom render command from frame
-        this._sprite = new cc.Sprite();
+        this._sprite = new gaf._SpriteWrapper(frame._rotation);
         this._sprite._renderCmd = this._gafCreateRenderCmd(this._sprite);
         this._sprite.initWithSpriteFrame(frame);
-        if (frame.isRotated())
-        {
-            this._sprite.setRotation(-90);
-        }
-
         this._sprite.setAnchorPoint(this._gafproto.getAnchor());
+
         this.addChild(this._sprite);
         //this._sprite.setCascadeColorEnabled(true);
         //this._sprite.setCascadeOpacityEnabled(true);
         this._sprite.setOpacityModifyRGB(true);
 
         if(cc._renderType === cc._RENDER_TYPE_WEBGL)
+        {
             this._sprite.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        }
+        else
+        {
+            if (frame._rotation)
+            {
+                this._sprite._offsetPosition.x -= frame._originalSize.width / 2;
+                this._sprite._offsetPosition.y -= frame._originalSize.height / 2;
+                if (frame._rotation == gaf.ROTATED_CW)
+                {
+                    this._sprite.setRotation(-90);
+                }
+                else if (frame._rotation == gaf.ROTATED_CCW)
+                {
+                    this._sprite.setRotation(90);
+                }
+            }
+        }
     },
-    
-    _applyState : function(state, parent)
+
+    _applyState: function(state, parent)
     {
         this._applyStateSuper(state, parent);
         if(this._needsCtx)
