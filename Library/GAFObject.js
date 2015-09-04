@@ -32,7 +32,6 @@ gaf.Object = cc.Node.extend
     _id : gaf.IDNONE,
     _gafproto : null,
     _parentTimeLine : null,
-    _lastVisibleInFrame : 0,
     _filterStack : null,
     _cascadeColorMult : null,
     _cascadeColorOffset : null,
@@ -150,34 +149,6 @@ gaf.Object = cc.Node.extend
      * @method stop
      */
     stop : function () {},
-
-    /**
-     * @method isVisibleInCurrentFrame
-     * @return {bool}
-     */
-    isVisibleInCurrentFrame : function ()
-    {
-        /*if (this._parentTimeLine &&
-            ((this._parentTimeLine.getCurrentFrameIndex() + 1) != this._lastVisibleInFrame))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }*/
-        if (!this._parentTimeLine instanceof gaf.Object)
-        {
-            cc.warn("Parent timeline must be an instance of gaf.Object");
-        }
-
-        // If no parent timeline, or this object is not a root timeline - the object is not in the display list
-        if (!this._parentTimeLine && this instanceof gaf.TimeLine && this._gafproto.getId() != 0) return false;
-        // If sprite is a part of timeline object - check it for visibility in current frame
-        if (this._parentTimeLine && (this._parentTimeLine.getCurrentFrameIndex() + 1 != this._lastVisibleInFrame))
-            return false;
-        return true;
-    },
 
     /**
      * @method isDone
@@ -313,7 +284,7 @@ gaf.Object = cc.Node.extend
     // @Override
     visit: function(parentCmd)
     {
-        if(this.isVisibleInCurrentFrame())
+        if(this.isVisible())
         {
             this._super(parentCmd);
         }
@@ -402,8 +373,10 @@ gaf.Object = cc.Node.extend
         this._renderCmd = cc.renderer.getRenderCmd(this);
         this._renderCmd._visit = this._renderCmd.visit;
         var self = this;
-        this._renderCmd.visit = function(parentCmd) {
-            if(self.isVisibleInCurrentFrame()){
+        this._renderCmd.visit = function(parentCmd)
+        {
+            if(self.isVisible())
+            {
                 this._visit(parentCmd);
             }
         }

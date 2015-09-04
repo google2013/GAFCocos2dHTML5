@@ -45,7 +45,7 @@ gaf.TimeLine = gaf.Object.extend
         var result = null;//cc.rect();
         var isFirstObj = true;
         this._objects.forEach(function (item) {
-            if(item.isVisibleInCurrentFrame() && item.isVisible())
+            if(item.isVisible())
             {
                 var bb = item.getBoundingBoxForCurrentFrame();
                 if(!bb)
@@ -427,6 +427,7 @@ gaf.TimeLine = gaf.Object.extend
             var objectProto = asset._getProtos()[key];
             cc.assert(objectProto, "Error. GAF proto for type: " + key.type + " and reference id: " + key + " not found.");
             var object = objectProto._gafConstruct();
+            object.setOpacity(0);
             for (var name in namedParts)
             {
                 if (namedParts[name] == key)
@@ -549,6 +550,10 @@ gaf.TimeLine = gaf.Object.extend
     {
         var self = this;
         var objects = self._objects;
+        objects.forEach(function(object)
+        {
+            object.setOpacity(0);
+        });
         var frames = self._gafproto.getFrames();
         if(frameIndex > frames.length)
         {
@@ -584,7 +589,7 @@ gaf.TimeLine = gaf.Object.extend
                 parent = objects[state.maskObjectIdRef]._getNode();
                 cc.assert(parent, "Error! Mask not found.");
             }
-            object._lastVisibleInFrame = 1 + frameIndex;
+
             gaf.TimeLine.rearrangeSubobject(parent, object, state.depth);
             if(object._step)
             {
