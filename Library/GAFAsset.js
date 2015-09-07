@@ -12,7 +12,6 @@ gaf.Asset = cc.Class.extend
     _objects: null,
     _masks: null,
     _sounds: null,
-    _soundChannels: null,
 
     _rootTimeLine: null,
     _textureLoadDelegate: null,
@@ -68,12 +67,6 @@ gaf.Asset = cc.Class.extend
     {
         cc.assert(false, "initWithGAFBundle is not yet implemented");
         return false;
-    },
-
-    stopAllSounds: function()
-    {
-        gaf.enableSounds = false;
-        cc.audioEngine.stopAllEffects();
     },
 
     /**
@@ -272,7 +265,6 @@ gaf.Asset = cc.Class.extend
         this._atlasScales = {};
         this._atlasesToLoad = {};
         this._sounds = {};
-        this._soundChannels = {};
 
         if(arguments.length > 0)
             this.initWithGAFFile.apply(this, arguments);
@@ -425,31 +417,7 @@ gaf.Asset = cc.Class.extend
         var sound = this._sounds[config.id];
         if (sound)
         {
-            switch (config.action)
-            {
-                case gaf.SOUND_ACTION_STOP:
-                    if (this._soundChannels[config.id]
-                        &&  this._soundChannels[config.id] instanceof Array)
-                    {
-                        var i = this._soundChannels[config.id].length;
-                        while (i--)
-                        {
-                            cc.audioEngine.stopEffect(this._soundChannels[config.id][i]);
-                        }
-                        delete this._soundChannels[config.id];
-                    }
-                    break;
-                case gaf.SOUND_ACTION_CONTINUE:
-                    if (this._soundChannels[config.id])
-                    {
-                        break;
-                    }
-                case gaf.SOUND_ACTION_START:
-                    this._soundChannels[config.id] = this._soundChannels[config.id] || [];
-                    var loop = config.repeat < 0 || config.repeat > 32000;
-                    this._soundChannels[config.id].push(cc.audioEngine.playEffect(sound.source, loop));
-                    break;
-            }
+            gaf.soundManager._startSound(sound, config);
         }
     }
 });
