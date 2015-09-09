@@ -549,11 +549,6 @@ gaf.TimeLine = gaf.Object.extend
     _realizeFrame: function(out, frameIndex)
     {
         var self = this;
-        var objects = self._objects;
-        objects.forEach(function(object)
-        {
-            object.setOpacity(0);
-        });
         var frames = self._gafproto.getFrames();
         if(frameIndex > frames.length)
         {
@@ -564,6 +559,14 @@ gaf.TimeLine = gaf.Object.extend
         {
             return;
         }
+        var objects = self._objects;
+        objects.forEach(function(object)
+        {
+            if (object.getOpacity() > 0)
+            {
+                object.setOpacity(0);
+            }
+        });
         var states = currentFrame.states;
         for(var stateIdx = 0, total = states.length; stateIdx < total; ++stateIdx)
         {
