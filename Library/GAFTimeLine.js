@@ -427,7 +427,6 @@ gaf.TimeLine = gaf.Object.extend
             var objectProto = asset._getProtos()[key];
             cc.assert(objectProto, "Error. GAF proto for type: " + key.type + " and reference id: " + key + " not found.");
             var object = objectProto._gafConstruct();
-            object.setOpacity(0);
             for (var name in namedParts)
             {
                 if (namedParts[name] == key)

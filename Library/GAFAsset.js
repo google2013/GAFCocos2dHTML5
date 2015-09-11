@@ -69,6 +69,20 @@ gaf.Asset = cc.Class.extend
         return false;
     },
 
+    getSpriteFrameByName: function(linkageName, scale)
+    {
+        scale = scale || this._usedAtlasScale;
+        var regions = this._atlasScales[scale];
+        for (var regionID in regions)
+        {
+            if (regions[regionID].linkageName == linkageName)
+            {
+                return regions[regionID];
+            }
+        }
+        return null;
+    },
+
     /**
      * @method setRootTimelineWithName
      * @param {String} name
@@ -85,9 +99,6 @@ gaf.Asset = cc.Class.extend
             }
         }
     },
-
-/*    addEventListener: function(name, listener)
-    {},*/
 
     isAssetVersionPlayable: function ()
     {
@@ -169,7 +180,7 @@ gaf.Asset = cc.Class.extend
      */
     getSceneWidth: function ()
     {
-        debugger;
+        return this._sceneWidth;
     },
 
     /**
@@ -178,7 +189,7 @@ gaf.Asset = cc.Class.extend
      */
     getSceneHeight: function ()
     {
-        debugger;
+        return this._sceneHeight;
     },
 
     /**
@@ -187,7 +198,7 @@ gaf.Asset = cc.Class.extend
      */
     getSceneColor: function ()
     {
-        debugger;
+        return this._sceneColor;
     },
 
     /**
@@ -205,7 +216,7 @@ gaf.Asset = cc.Class.extend
      */
     setSceneWidth: function (width)
     {
-        debugger;
+        this._sceneWidth = width;
     },
 
     /**
@@ -214,7 +225,7 @@ gaf.Asset = cc.Class.extend
      */
     setSceneHeight: function (height)
     {
-        debugger;
+        this._sceneHeight = height;
     },
 
     /**
@@ -223,7 +234,7 @@ gaf.Asset = cc.Class.extend
      */
     setSceneColor: function (color4B)
     {
-        debugger;
+        this._sceneColor = color4B;
     },
 
     /**

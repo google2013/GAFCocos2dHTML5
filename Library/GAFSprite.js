@@ -66,23 +66,23 @@ gaf.Sprite = gaf.Object.extend
         this._gafproto = gafSpriteProto;
     },
 
-    // Private
-
-    _init: function()
+    changeSprite: function(frame)
     {
-        var frame = this._gafproto.getFrame();
+        this.removeChild(this._sprite);
+        this._setSprite(frame);
+    },
+
+    _setSprite: function(frame)
+    {
         cc.assert(frame instanceof cc.SpriteFrame, "Error. Wrong object type.");
 
-        // Create sprite with custom render command from frame
         this._sprite = new gaf._SpriteWrapper(frame._rotation);
         this._sprite._renderCmd = this._gafCreateRenderCmd(this._sprite);
         this._sprite.initWithSpriteFrame(frame);
-        this._sprite.setAnchorPoint(this._gafproto.getAnchor());
+        this._sprite.setAnchorPoint(frame._gafAnchor);
+        this._sprite.setOpacityModifyRGB(true);
 
         this.addChild(this._sprite);
-        //this._sprite.setCascadeColorEnabled(true);
-        //this._sprite.setCascadeOpacityEnabled(true);
-        this._sprite.setOpacityModifyRGB(true);
 
         if(cc._renderType === cc._RENDER_TYPE_WEBGL)
         {
@@ -104,6 +104,16 @@ gaf.Sprite = gaf.Object.extend
                 }
             }
         }
+    },
+
+    // Private
+
+    _init: function()
+    {
+        var frame = this._gafproto.getFrame();
+
+        // Create sprite with custom render command from frame
+        this._setSprite(frame);
     },
 
     _applyState: function(state, parent)
