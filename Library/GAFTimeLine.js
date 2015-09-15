@@ -432,6 +432,8 @@ gaf.TimeLine = gaf.Object.extend
                 if (namedParts[name] == key)
                 {
                     object._name = name;
+                    self[name] = object;
+                    break;
                 }
             }
             self._objects[key] = object;
