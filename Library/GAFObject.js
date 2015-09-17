@@ -36,6 +36,7 @@ gaf.Object = cc.Node.extend
     _cascadeColorMult : null,
     _cascadeColorOffset : null,
     _needsCtx : false,
+    _visibleChanged: false,
     _usedAtlasScale: 1,
 
     // Public methods
@@ -55,55 +56,55 @@ gaf.Object = cc.Node.extend
      * @method setAnimationStartedNextLoopDelegate
      * @param {function(Object)} delegate
      */
-    setAnimationStartedNextLoopDelegate : function (delegate) {},
+    setAnimationStartedNextLoopDelegate: function(delegate) {},
 
     /**
      * @method setAnimationFinishedPlayDelegate
      * @param {function(Object)} delegate
      */
-    setAnimationFinishedPlayDelegate : function (delegate) {},
+    setAnimationFinishedPlayDelegate: function(delegate) {},
 
     /**
      * @method setLooped
      * @param {bool} looped
      */
-    setLooped : function (looped) {},
+    setLooped: function(looped) {},
 
     /**
      * @method getBoundingBoxForCurrentFrame
      * @return {cc.Rect}
      */
-    getBoundingBoxForCurrentFrame : function () {return null;},
+    getBoundingBoxForCurrentFrame: function() {return null;},
 
     /**
      * @method setFps
      * @param {uint} fps
      */
-    setFps : function (fps) {},
+    setFps: function(fps) {},
 
     /**
      * @method getObjectByName
      * @param {String} name - name of the object to find
      * @return {gaf.Object}
      */
-    getObjectByName : function (name) {return null;},
+    getObjectByName: function(name) {return null;},
 
     /**
      * @method clearSequence
      */
-    clearSequence : function () {},
+    clearSequence: function() {},
 
     /**
      * @method getIsAnimationRunning
      * @return {bool}
      */
-    getIsAnimationRunning : function () {return false;},
+    getIsAnimationRunning: function() {return false;},
 
     /**
      * @method getSequences
      * @return [string] - list of sequences if has any
      */
-    getSequences : function(){return [];},
+    getSequences: function(){return [];},
 
 
     /**
@@ -111,26 +112,26 @@ gaf.Object = cc.Node.extend
      * @param {uint|String} value - label ot frame number
      * @return {bool}
      */
-    gotoAndStop : function (value) {},
+    gotoAndStop: function(value) {},
 
     /**
      * @method getStartFrame
      * @param {String} frameLabel
      * @return {uint}
      */
-    getStartFrame : function (frameLabel) {return gaf.IDNONE;},
+    getStartFrame: function(frameLabel) {return gaf.IDNONE;},
 
     /**
      * @method setFramePlayedDelegate
      * @param {function(Object, frame)} delegate
      */
-    setFramePlayedDelegate : function (delegate) {},
+    setFramePlayedDelegate: function(delegate) {},
 
     /**
      * @method getCurrentFrameIndex
      * @return {uint}
      */
-    getCurrentFrameIndex : function () {
+    getCurrentFrameIndex: function() {
         return gaf.IDNONE;
     },
 
@@ -138,23 +139,23 @@ gaf.Object = cc.Node.extend
      * @method getTotalFrameCount
      * @return {uint}
      */
-    getTotalFrameCount : function () {return 0;},
+    getTotalFrameCount: function() {return 0;},
 
     /**
      * @method start
      */
-    start : function () {},
+    start: function() {},
 
     /**
      * @method stop
      */
-    stop : function () {},
+    stop: function() {},
 
     /**
      * @method isDone
      * @return {bool}
      */
-    isDone : function () {return true;},
+    isDone: function() {return true;},
 
     /**
      * @method playSequence
@@ -163,89 +164,89 @@ gaf.Object = cc.Node.extend
      * @param {bool} resume - whether to resume animation if stopped. True by default
      * @return {bool}
      */
-    playSequence : function (name, looped, resume) {return false;},
+    playSequence: function(name, looped, resume) {return false;},
 
     /**
      * @method isReversed
      * @return {bool}
      */
-    isReversed : function () {return false;},
+    isReversed: function() {return false;},
 
     /**
      * @method setSequenceDelegate
      * @param {function(Object, sequenceName)} delegate
      */
-    setSequenceDelegate : function (delegate) {},
+    setSequenceDelegate: function(delegate) {},
 
     /**
      * @method setFrame
      * @param {uint} index
      * @return {bool}
      */
-    setFrame : function (index) {return false;},
+    setFrame: function(index) {return false;},
 
     /**
      * @method setControlDelegate
      * @param {function} func
      */
-    setControlDelegate : function (func) {},
+    setControlDelegate: function(func) {},
 
     /**
      * @method getEndFrame
      * @param {String} frameLabel
      * @return {uint}
      */
-    getEndFrame : function (frameLabel) {return gaf.IDNONE;},
+    getEndFrame: function(frameLabel) {return gaf.IDNONE;},
 
     /**
      * @method pauseAnimation
      */
-    pauseAnimation : function () {},
+    pauseAnimation: function() {},
 
     /**
      * @method gotoAndPlay
      * @param {uint|String} value - label ot frame number
      * @return {bool}
      */
-    gotoAndPlay : function (value) {},
+    gotoAndPlay: function(value) {},
 
     /**
      * @method isLooped
      * @return {bool}
      */
-    isLooped : function () {return false;},
+    isLooped: function() {return false;},
 
     /**
      * @method resumeAnimation
      */
-    resumeAnimation : function () {},
+    resumeAnimation: function() {},
 
     /**
      * @method setReversed
      * @param {bool} reversed
      */
-    setReversed : function (reversed) {},
+    setReversed: function(reversed) {},
 
     /**
      * @method hasSequences
      * @return {bool}
      */
-    hasSequences : function () {return false;},
+    hasSequences: function() {return false;},
 
     /**
      * @method getFps
      * @return {uint}
      */
-    getFps : function () {return 60;},
+    getFps: function() {return 60;},
 
     /**
      * @method setLocator
      * @param {bool} locator
      * Locator object will not draw itself, but its children will be drawn
      */
-    setLocator : function (locator){},
+    setLocator: function(locator){},
 
-    setExternalTransform : function(affineTransform)
+    setExternalTransform: function(affineTransform)
     {
         if(!cc.affineTransformEqualToTransform(this._additionalTransform, affineTransform))
         {
@@ -253,7 +254,7 @@ gaf.Object = cc.Node.extend
         }
     },
 
-    getExternalTransform : function()
+    getExternalTransform: function()
     {
         return this._additionalTransform;
     },
@@ -265,20 +266,33 @@ gaf.Object = cc.Node.extend
     ////////////////
     _enableTick: function(val){},
 
-    _resetState : function()
+    _resetState: function()
     {},
 
-    _updateVisibility : function(state, parent)
+    _updateVisibility: function(state, parent)
     {
+        if (this._visibleChanged)
+        {
+            return;
+        }
         var alphaOffset = state.hasColorTransform ? state.colorTransform.offset.a : 0;
         this.setOpacity(state.alpha + alphaOffset);
         //return this.isVisible();
     },
 
     // @Override
-    isVisible : function()
+    isVisible: function()
     {
         return this.getOpacity() > 0;
+    },
+
+    setVisible: function(value)
+    {
+        this._visibleChanged = true;
+        if (value)
+            this.setOpacity(255);
+        else
+            this.setOpacity(0);
     },
 
     // @Override
@@ -290,17 +304,17 @@ gaf.Object = cc.Node.extend
         }
     },
 
-    _getFilters : function(){return null},
+    _getFilters: function(){return null},
 
-    _processAnimation : function(){},
+    _processAnimation: function(){},
 
 
-    _applyState : function(state, parent)
+    _applyState: function(state, parent)
     {
         this._applyStateSuper(state, parent);
     },
 
-    _applyStateSuper : function(state, parent)
+    _applyStateSuper: function(state, parent)
     {
         this._needsCtx = parent._needsCtx;
         this._filterStack.length = 0; // clear
@@ -405,5 +419,9 @@ gaf.Object._createNullObject = function()
 {
     var ret = new gaf.Object();
     ret.isVisible = function(){return true};
+    ret.setVisible = function(value){};
     return ret;
 };
+
+var _p = gaf.Object.prototype;
+cc.defineGetterSetter(_p, "visible", _p.isVisible, _p.setVisible);

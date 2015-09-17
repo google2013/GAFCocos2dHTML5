@@ -563,7 +563,7 @@ gaf.TimeLine = gaf.Object.extend
         var objects = self._objects;
         objects.forEach(function(object)
         {
-            if (object.getOpacity() > 0)
+            if (object.getOpacity() > 0 && !object._visibleChanged)
             {
                 object.setOpacity(0);
             }

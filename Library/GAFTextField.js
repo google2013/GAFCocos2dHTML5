@@ -78,8 +78,7 @@ gaf.TextField = gaf.Object.extend
         }
         else
         {
-            this._textField = new cc.TextFieldTTF(this._config.text, size, 0, fontStyle, this._config.size);
-            this._textField.setHorizontalAlignment(alignment);
+            this._textField = new cc.TextFieldTTF(this._config.text, size, alignment, fontStyle, this._config.size);
             if (this._config.bold)
             {
                 this._textField._setFontWeight("bold"); //TODO: it works for web only
