@@ -11,4 +11,4 @@ Example (how to use it)
 -----------------------
 https://github.com/CatalystApps/GAFCocos2d-js_Example (also here you can see how to use javascript bindings on cocos2d-x). 
 
-For now we do not support blur, glow and drop shadow and we are planning to support it first of all for WebGL (because it is easier to do compared to Canvas).
+For now we do not support blur and glow for Canvas and drop shadow for Canvas and WebGL. First of all we are planning to support WebGL (because it is easier to do compared to Canvas).
