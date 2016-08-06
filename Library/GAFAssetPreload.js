@@ -85,8 +85,8 @@ gaf._AssetPreload.prototype.AtlasCreateFrames = function(elements, asset, sprite
         }
         var anchor =
         {
-            x:     (item.pivot.x / width * scaleX),
-            y: 1 - (item.pivot.y / height * scaleY)
+            x:     (item.pivot.x / width),
+            y: 1 - (item.pivot.y / height)
         };
 
         var frame;
@@ -103,6 +103,8 @@ gaf._AssetPreload.prototype.AtlasCreateFrames = function(elements, asset, sprite
             frame = new cc.SpriteFrame(texture, rect, (item.rotation != gaf.ROTATED_NONE), offset, originalSize);
         }
         frame._gafAnchor = anchor;
+        frame._gafScaleX = 1 / scaleX;
+        frame._gafScaleY = 1 / scaleY;
         frame.linkageName = "";
         frame._rotation = item.rotation;
 

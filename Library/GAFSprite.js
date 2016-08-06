@@ -81,6 +81,8 @@ gaf.Sprite = gaf.Object.extend
         this._sprite.initWithSpriteFrame(frame);
         this._sprite.setAnchorPoint(frame._gafAnchor);
         this._sprite.setOpacityModifyRGB(true);
+        this._sprite.setScaleX(frame._gafScaleX);
+        this._sprite.setScaleY(frame._gafScaleY);
 
         this.addChild(this._sprite);
 

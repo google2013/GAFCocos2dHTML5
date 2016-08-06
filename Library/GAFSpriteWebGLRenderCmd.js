@@ -3,7 +3,7 @@
     gaf.Sprite.WebGLRenderCmd = function (renderable) {
         cc.Sprite.WebGLRenderCmd.call(this, renderable);
         this._defualtShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
-        this._customShader = gaf._Shaders.Alpha;
+        if ("_Shaders" in gaf) this._customShader = gaf._Shaders.Alpha;
 
         //this._shaderProgram = this._defualtShader;
 
