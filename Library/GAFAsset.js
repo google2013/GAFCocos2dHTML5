@@ -33,7 +33,7 @@ gaf.Asset = cc.Class.extend
     /**
      * @method initWithGAFFile
      * @param {String} filePath - path to .gaf file
-     * @param {String function(String)} textureLoadDelegate - is used to change atlas path, e.g. to load `atlas.tga` instead of `atlas.png`
+     * @param {String|function(String)} textureLoadDelegate - is used to change atlas path, e.g. to load `atlas.tga` instead of `atlas.png`
      * @return {bool}
      */
     initWithGAFFile: function (filePath, textureLoadDelegate) {
@@ -65,7 +65,22 @@ gaf.Asset = cc.Class.extend
      */
     initWithGAFBundle: function (zipFilePath, entryFile, delegate)
     {
-        cc.assert(false, "initWithGAFBundle is not yet implemented");
+        var self = this;
+        this._textureLoadDelegate = delegate;
+        this._gafName = zipFilePath + ':' + entryFile;
+        var result = cc.loader.getRes(zipFilePath);
+        if(!result)
+        {
+            cc.loader.load(zipFilePath, function(err, data){
+                if(!err)
+                {
+                    self._init(data[0].gafFiles[entryFile], data[0].notGafFiles);
+                }
+            });
+        }
+        else {
+            return this._init(result.gafFiles[entryFile], result.notGafFiles);
+        }
         return false;
     },
 
@@ -309,10 +324,11 @@ gaf.Asset = cc.Class.extend
         return this._header.versionMajor;
     },
 
-    _init : function(gafData)
+    _init : function(gafData, notGafFiles)
     {
         var self = this;
         this._gafData = gafData;
+        this._notGafFiles = notGafFiles;
         this._setHeader(gafData.header);
         this._timeLinesToLink = [];
         if(this._getMajorVerison() < 4)
@@ -416,6 +432,23 @@ gaf.Asset = cc.Class.extend
 
     _getSearchPaths: function(sourceUrl)
     {
+        if (this._notGafFiles) { // It means - use zip file for this asset
+            var tmp = this._gafName.split(':');
+            var zipName = tmp[0];
+            if (typeof tmp[1] == 'undefined') return [sourceUrl]; // Wrong situation
+            var filename = tmp[1];
+            tmp = filename.split('/');
+            tmp[tmp.length-1] = sourceUrl;
+            var key = tmp.join('/');
+            var zipKey = zipName + ':' + key;
+            var data = this._notGafFiles[key];
+            var imgElement = new cc.newElement("IMG");
+            imgElement.setAttribute("src", data);
+
+            cc.textureCache.cacheImage(zipKey, imgElement);
+            return [zipKey];
+        }
+
         var extendedPath = this.getGAFFileName().split('/');
         extendedPath[extendedPath.length-1] = sourceUrl;
         var alternativeUrl = extendedPath.join('/');
