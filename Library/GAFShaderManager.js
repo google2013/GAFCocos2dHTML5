@@ -1,4 +1,3 @@
-
 gaf._glShaderInit = function() {
     gaf._Uniforms = {
         ColorTransformMult: -1,
@@ -10,7 +9,7 @@ gaf._glShaderInit = function() {
         GlowColor: -1
     };
 
-    gaf._shaderCreate = function (fs, vs) {
+    gaf._shaderCreate = function(fs, vs) {
         var program = new cc.GLProgram();
         var result = program.initWithVertexShaderByteArray(vs, fs);
         cc.assert(result, "Shader init error");
@@ -23,7 +22,7 @@ gaf._glShaderInit = function() {
         return program;
     };
 
-    gaf._shaderCreateAlpha = function () {
+    gaf._shaderCreateAlpha = function() {
         var program = gaf._shaderCreate(gaf.SHADER_COLOR_MATRIX_FRAG, cc.SHADER_POSITION_TEXTURE_COLOR_VERT);
         gaf._Uniforms.ColorTransformMult = program.getUniformLocationForName(gaf.UNIFORM_ALPHA_TINT_MULT);
         gaf._Uniforms.ColorTransformOffset = program.getUniformLocationForName(gaf.UNIFORM_ALPHA_TINT_OFFSET);
@@ -32,14 +31,14 @@ gaf._glShaderInit = function() {
         return program;
     };
 
-    gaf._shaderCreateBlur = function () {
+    gaf._shaderCreateBlur = function() {
         var program = gaf._shaderCreate(gaf.SHADER_GAUSSIAN_BLUR_FRAG, cc.SHADER_POSITION_TEXTURE_COLOR_VERT);
         gaf._Uniforms.BlurTexelOffset = program._glContext.getUniformLocation(program._programObj, gaf.UNIFORM_BLUR_TEXEL_OFFSET);
 
         return program;
     };
 
-    gaf._shaderCreateGlow = function () {
+    gaf._shaderCreateGlow = function() {
         var program = gaf._shaderCreate(gaf.SHADER_GLOW_FRAG, cc.SHADER_POSITION_TEXTURE_COLOR_VERT);
         gaf._Uniforms.GlowTexelOffset = program._glContext.getUniformLocation(program._programObj, gaf.UNIFORM_GLOW_TEXEL_OFFSET);
         gaf._Uniforms.GlowColor = program._glContext.getUniformLocation(program._programObj, gaf.UNIFORM_GLOW_COLOR);
@@ -54,10 +53,9 @@ gaf._glShaderInit = function() {
 };
 
 gaf._setupShaders = function() {
-    if (cc._renderType === cc._RENDER_TYPE_WEBGL) {
+    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
         gaf._glShaderInit();
-    }
-    else {
+    } else {
         delete gaf._glShaderInit;
     }
 };

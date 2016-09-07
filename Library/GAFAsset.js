@@ -1,7 +1,6 @@
 var gaf = gaf || {};
 
-gaf.Asset = cc.Class.extend
-({
+gaf.Asset = cc.Class.extend({
     _className: "GAFAsset",
 
     // Private members
@@ -36,21 +35,18 @@ gaf.Asset = cc.Class.extend
      * @param {String|function(String)} textureLoadDelegate - is used to change atlas path, e.g. to load `atlas.tga` instead of `atlas.png`
      * @return {bool}
      */
-    initWithGAFFile: function (filePath, textureLoadDelegate) {
+    initWithGAFFile: function(filePath, textureLoadDelegate) {
         var self = this;
         this._textureLoadDelegate = textureLoadDelegate;
         this._gafName = filePath;
         var gafData = cc.loader.getRes(filePath);
-        if(!gafData)
-        {
-            cc.loader.load(filePath, function(err, data){
-                if(!err)
-                {
+        if (!gafData) {
+            cc.loader.load(filePath, function(err, data) {
+                if (!err) {
                     self._init(data[0]);
                 }
             });
-        }
-        else {
+        } else {
             return this._init(gafData);
         }
         return false;
@@ -63,35 +59,28 @@ gaf.Asset = cc.Class.extend
      * @param {function({path:String})} delegate - is used to change atlas path, e.g. to load `atlas.tga` instead of `atlas.png`
      * @return {bool}
      */
-    initWithGAFBundle: function (zipFilePath, entryFile, delegate)
-    {
+    initWithGAFBundle: function(zipFilePath, entryFile, delegate) {
         var self = this;
         this._textureLoadDelegate = delegate;
         this._gafName = zipFilePath + ':' + entryFile;
         var result = cc.loader.getRes(zipFilePath);
-        if(!result)
-        {
-            cc.loader.load(zipFilePath, function(err, data){
-                if(!err)
-                {
+        if (!result) {
+            cc.loader.load(zipFilePath, function(err, data) {
+                if (!err) {
                     self._init(data[0].gafFiles[entryFile], data[0].notGafFiles);
                 }
             });
-        }
-        else {
+        } else {
             return this._init(result.gafFiles[entryFile], result.notGafFiles);
         }
         return false;
     },
 
-    getSpriteFrameByName: function(linkageName, scale)
-    {
+    getSpriteFrameByName: function(linkageName, scale) {
         scale = scale || this._usedAtlasScale;
         var regions = this._atlasScales[scale];
-        for (var regionID in regions)
-        {
-            if (regions[regionID].linkageName == linkageName)
-            {
+        for (var regionID in regions) {
+            if (regions[regionID].linkageName == linkageName) {
                 return regions[regionID];
             }
         }
@@ -102,21 +91,17 @@ gaf.Asset = cc.Class.extend
      * @method setRootTimelineWithName
      * @param {String} name
      */
-    setRootTimelineWithName: function (name)
-    {
-        for(var i = 0, end = this._timeLines.length; i < end; ++i)
-        {
+    setRootTimelineWithName: function(name) {
+        for (var i = 0, end = this._timeLines.length; i < end; ++i) {
             var object = this._timeLines[i];
-            if (object && object.getLinkageName() === name)
-            {
+            if (object && object.getLinkageName() === name) {
                 this._setRootTimeline(object);
                 return;
             }
         }
     },
 
-    isAssetVersionPlayable: function ()
-    {
+    isAssetVersionPlayable: function() {
         return true;
     },
 
@@ -125,7 +110,7 @@ gaf.Asset = cc.Class.extend
      * Default is 1.0f
      * @returns {number}
      */
-    desiredAtlasScale : function(){
+    desiredAtlasScale: function() {
         return this._desiredAtlasScale;
     },
 
@@ -134,25 +119,23 @@ gaf.Asset = cc.Class.extend
      * Default is 1.0f
      * @param scale
      */
-    setDesiredAtlasScale : function(desiredAtlasScale){
+    setDesiredAtlasScale: function(desiredAtlasScale) {
         this._desiredAtlasScale = desiredAtlasScale;
-        for(var currentScale in this._atlasScales)if(this._atlasScales.hasOwnProperty(currentScale))
-        {
-            if( (this._usedAtlasScale === 0) ||
-                (Math.abs(this._usedAtlasScale - desiredAtlasScale) > Math.abs(currentScale - desiredAtlasScale) ))
-            {
-                this._usedAtlasScale = currentScale;
-            }
+        for (var currentScale in this._atlasScales)
+            if (this._atlasScales.hasOwnProperty(currentScale)) {
+                if ((this._usedAtlasScale === 0) ||
+                    (Math.abs(this._usedAtlasScale - desiredAtlasScale) > Math.abs(currentScale - desiredAtlasScale))) {
+                    this._usedAtlasScale = currentScale;
+                }
 
-        }
+            }
     },
 
     /**
      * @method createObject
      * @return {gaf.Object}
      */
-    createObject: function ()
-    {
+    createObject: function() {
         return this._instantiateGaf(this._gafData);
     },
 
@@ -161,8 +144,7 @@ gaf.Asset = cc.Class.extend
      * @param {boolean} arg0 - run looped
      * @return {gaf.Object}
      */
-    createObjectAndRun: function (looped)
-    {
+    createObjectAndRun: function(looped) {
         cc.assert(arguments.length === 1, "GAFAsset::createObjectAndRun should have one param");
         var object = this._instantiateGaf(this._gafData);
         object.setLooped(looped, true);
@@ -174,8 +156,7 @@ gaf.Asset = cc.Class.extend
      * @method setTextureLoadDelegate
      * @param {function} delegate
      */
-    setTextureLoadDelegate: function (delegate)
-    {
+    setTextureLoadDelegate: function(delegate) {
         debugger;
     },
 
@@ -184,8 +165,7 @@ gaf.Asset = cc.Class.extend
      * @method getSceneFps
      * @return {uint}
      */
-    getSceneFps: function ()
-    {
+    getSceneFps: function() {
         return this._sceneFps;
     },
 
@@ -193,8 +173,7 @@ gaf.Asset = cc.Class.extend
      * @method getSceneWidth
      * @return {uint}
      */
-    getSceneWidth: function ()
-    {
+    getSceneWidth: function() {
         return this._sceneWidth;
     },
 
@@ -202,8 +181,7 @@ gaf.Asset = cc.Class.extend
      * @method getSceneHeight
      * @return {uint}
      */
-    getSceneHeight: function ()
-    {
+    getSceneHeight: function() {
         return this._sceneHeight;
     },
 
@@ -211,8 +189,7 @@ gaf.Asset = cc.Class.extend
      * @method getSceneColor
      * @return {cc.color4b}
      */
-    getSceneColor: function ()
-    {
+    getSceneColor: function() {
         return this._sceneColor;
     },
 
@@ -220,8 +197,7 @@ gaf.Asset = cc.Class.extend
      * @method setSceneFps
      * @param {uint} fps
      */
-    setSceneFps: function (fps)
-    {
+    setSceneFps: function(fps) {
         this._sceneFps = fps;
     },
 
@@ -229,8 +205,7 @@ gaf.Asset = cc.Class.extend
      * @method setSceneWidth
      * @param {uint} width
      */
-    setSceneWidth: function (width)
-    {
+    setSceneWidth: function(width) {
         this._sceneWidth = width;
     },
 
@@ -238,8 +213,7 @@ gaf.Asset = cc.Class.extend
      * @method setSceneHeight
      * @param {uint} height
      */
-    setSceneHeight: function (height)
-    {
+    setSceneHeight: function(height) {
         this._sceneHeight = height;
     },
 
@@ -247,8 +221,7 @@ gaf.Asset = cc.Class.extend
      * @method setSceneColor
      * @param {color4b_object} arg0
      */
-    setSceneColor: function (color4B)
-    {
+    setSceneColor: function(color4B) {
         this._sceneColor = color4B;
     },
 
@@ -256,13 +229,11 @@ gaf.Asset = cc.Class.extend
      * @method getHeader
      * @return {GAFHeader}
      */
-    getHeader: function ()
-    {
+    getHeader: function() {
         return this._header;
     },
 
-    getGAFFileName: function()
-    {
+    getGAFFileName: function() {
         return this._gafName;
     },
 
@@ -271,15 +242,13 @@ gaf.Asset = cc.Class.extend
      * @param id - sound ID
      * @returns {SoundConfig}
      */
-    getSoundConfig: function(id)
-    {
+    getSoundConfig: function(id) {
         return this._sounds[id];
     },
 
     // Private
 
-    ctor : function()
-    {
+    ctor: function() {
         this._header = {};
         this._timeLines = [];
         this._textFields = [];
@@ -292,60 +261,49 @@ gaf.Asset = cc.Class.extend
         this._atlasesToLoad = {};
         this._sounds = {};
 
-        if(arguments.length > 0)
+        if (arguments.length > 0)
             this.initWithGAFFile.apply(this, arguments);
     },
 
-    _getProtos: function()
-    {
+    _getProtos: function() {
         return this._protos;
     },
 
-    _setRootTimeline : function(timeLine)
-    {
+    _setRootTimeline: function(timeLine) {
         this._rootTimeLine = timeLine;
         this._header.pivot = timeLine.getPivot();
         this._header.frameSize = timeLine.getRect();
     },
 
-    _setHeader : function (gafHeader)
-    {
-        for(var prop in gafHeader)
-        {
-            if(gafHeader.hasOwnProperty(prop))
-            {
+    _setHeader: function(gafHeader) {
+        for (var prop in gafHeader) {
+            if (gafHeader.hasOwnProperty(prop)) {
                 this._header[prop] = gafHeader[prop];
             }
         }
     },
 
-    _getMajorVerison : function()
-    {
+    _getMajorVerison: function() {
         return this._header.versionMajor;
     },
 
-    _init : function(gafData, notGafFiles)
-    {
+    _init: function(gafData, notGafFiles) {
         var self = this;
         this._gafData = gafData;
         this._notGafFiles = notGafFiles;
         this._setHeader(gafData.header);
         this._timeLinesToLink = [];
-        if(this._getMajorVerison() < 4)
-        {
+        if (this._getMajorVerison() < 4) {
             this._pushTimeLine(new gaf._TimeLineProto(this, this._header.framesCount, this._header.frameSize, this._header.pivot));
         }
         gaf._AssetPreload.Tags(this, gafData.tags, this._rootTimeLine);
 
         //Link and create
-        this._objects.forEach(function(item)
-        {
-            switch(item.type)
-            {
+        this._objects.forEach(function(item) {
+            switch (item.type) {
                 case gaf.TYPE_TEXTURE:
                     // Create gaf sprite proto if it is not yet created
-                    if(!self._protos[item.objectId])
-                    {
+                    if (!self._protos[item.objectId]) {
                         self._protos[item.objectId] = new gaf._SpriteProto(self, self._atlasScales, item.elementAtlasIdRef);
                     }
                     break;
@@ -362,15 +320,12 @@ gaf.Asset = cc.Class.extend
                     break;
             }
         });
-        this._masks.forEach(function(item)
-        {
-            if(self._protos[item.objectId])
-            {
+        this._masks.forEach(function(item) {
+            if (self._protos[item.objectId]) {
                 return; // this is continue
             }
             var proto = null;
-            switch(item.type)
-            {
+            switch (item.type) {
                 case gaf.TYPE_TEXTURE:
                     // Create gaf sprite proto if it is not yet created
                     proto = new gaf._SpriteProto(self, self._atlasScales, item.elementAtlasIdRef);
@@ -388,57 +343,51 @@ gaf.Asset = cc.Class.extend
         });
         this.setDesiredAtlasScale(this._desiredAtlasScale);
 
-        if(Object.keys(this._atlasesToLoad).length === 0)
-        {
+        if (Object.keys(this._atlasesToLoad).length === 0) {
             this._textureLoaded = true;
             this.dispatchEvent("load");
         }
     },
 
-    _pushTimeLine : function(timeLine)
-    {
+    _pushTimeLine: function(timeLine) {
         this._timeLines[timeLine.getId()] = timeLine;
 
-        if(timeLine.getId() === 0)
-        {
+        if (timeLine.getId() === 0) {
             this._setRootTimeline(timeLine);
         }
     },
 
-    _instantiateGaf : function()
-    {
+    _instantiateGaf: function() {
         var root = null;
         root = this._rootTimeLine._gafConstruct();
         return root;
     },
 
-    _onAtlasLoaded : function(id, atlas)
-    {
+    _onAtlasLoaded: function(id, atlas) {
         this._atlases[id] = atlas;
         delete this._atlasesToLoad[id];
-        if(Object.keys(this._atlasesToLoad).length === 0)
-        {
-            this._onLoadTasks.forEach(function(fn){fn()});
+        if (Object.keys(this._atlasesToLoad).length === 0) {
+            this._onLoadTasks.forEach(function(fn) {
+                fn()
+            });
             this._onLoadTasks.length = 0;
             this._textureLoaded = true;
             this.dispatchEvent("load");
         }
     },
 
-    isLoaded : function()
-    {
+    isLoaded: function() {
         return this._textureLoaded;
     },
 
-    _getSearchPaths: function(sourceUrl)
-    {
+    _getSearchPaths: function(sourceUrl) {
         if (this._notGafFiles) { // It means - use zip file for this asset
             var tmp = this._gafName.split(':');
             var zipName = tmp[0];
             if (typeof tmp[1] == 'undefined') return [sourceUrl]; // Wrong situation
             var filename = tmp[1];
             tmp = filename.split('/');
-            tmp[tmp.length-1] = sourceUrl;
+            tmp[tmp.length - 1] = sourceUrl;
             var key = tmp.join('/');
             var zipKey = zipName + ':' + key;
             var data = this._notGafFiles[key];
@@ -450,17 +399,14 @@ gaf.Asset = cc.Class.extend
         }
 
         var extendedPath = this.getGAFFileName().split('/');
-        extendedPath[extendedPath.length-1] = sourceUrl;
+        extendedPath[extendedPath.length - 1] = sourceUrl;
         var alternativeUrl = extendedPath.join('/');
-
         return [sourceUrl, alternativeUrl];
     },
 
-    _startSound: function(config)
-    {
+    _startSound: function(config) {
         var sound = this._sounds[config.id];
-        if (sound)
-        {
+        if (sound) {
             gaf.soundManager._startSound(sound, config);
         }
     }
@@ -472,8 +418,7 @@ gaf.Asset = cc.Class.extend
  * @param {function({path:String})} delegate - is used to change atlas path, e.g. to load `atlas.tga` instead of `atlas.png`
  * @return {gaf.Asset}
  */
-gaf.Asset.create = function (gafFilePath, delegate)
-{
+gaf.Asset.create = function(gafFilePath, delegate) {
     return new gaf.Asset(gafFilePath, delegate);
 };
 
@@ -484,8 +429,7 @@ gaf.Asset.create = function (gafFilePath, delegate)
  * @param {function({path:String})} delegate - is used to change atlas path, e.g. to load `atlas.tga` instead of `atlas.png`
  * @return {gaf.Asset}
  */
-gaf.Asset.createWithBundle = function (zipFilePath, entryFile, delegate)
-{
+gaf.Asset.createWithBundle = function(zipFilePath, entryFile, delegate) {
     var asset = new gaf.Asset();
     asset.initWithGAFBundle(zipFilePath, entryFile, delegate);
     return asset;
